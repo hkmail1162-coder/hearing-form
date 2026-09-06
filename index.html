@@ -380,7 +380,7 @@
   var STEPS = [
     {id:"name", section:"お客様情報", q:"お名前を教えてください", type:"text", required:true, placeholder:"例：山田 太郎"},
     {id:"kana", section:"お客様情報", q:"フリガナ", type:"text", placeholder:"例：ヤマダ タロウ"},
-    {id:"phone", section:"お客様情報", q:"電話番号を教えてください", type:"tel", required:true, placeholder:"例：090-1234-5678"},
+    {id:"phone", section:"お客様情報", q:"電話番号を教えてください", sub:"ハイフンは無くて大丈夫です", type:"tel", required:true, placeholder:"例：09012345678"},
     {id:"email", section:"お客様情報", q:"メールアドレス", type:"email", placeholder:"例：taro@example.com"},
     {id:"contact_method", section:"お客様情報", q:"ご連絡が可能な方法をチェックしてください", sub:"複数選択可です", type:"multi", other:true,
       options:["電話","SMS","LINE","メール"]},
@@ -523,7 +523,7 @@
       if(k === "class") e.className = attrs[k];
       else if(k === "html") e.innerHTML = attrs[k];
       else if(k.indexOf("on") === 0) e.addEventListener(k.slice(2), attrs[k]);
-      else e.setAttribute(k, attrs[k]);
+      else if(attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) e.setAttribute(k, attrs[k]);
     });
     (children||[]).forEach(function(c){
       if(c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
