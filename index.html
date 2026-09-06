@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>お部屋探しヒアリング</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f3ec;
+    --paper-raised:#ffffff;
+    --ink:#242018;
+    --ink-soft:#6b6355;
+    --line:#e2dbc9;
+    --brass:#a97e3f;
+    --brass-deep:#8a6530;
+    --navy:#2b3550;
+    --success:#3f7a5e;
+    --danger:#a4432f;
+    --backdrop:#e8e1cd;
+    --shadow: 0 18px 40px -24px rgba(43,30,10,0.35);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#181611;
+      --paper-raised:#231f18;
+      --ink:#eee7d8;
+      --ink-soft:#a89d87;
+      --line:#3a3428;
+      --brass:#c9a15a;
+      --brass-deep:#dcb46e;
+      --navy:#8fa1cf;
+      --success:#7dc7a1;
+      --danger:#e18068;
+      --backdrop:#0e0d0a;
+      --shadow: 0 18px 40px -20px rgba(0,0,0,0.6);
+    }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--backdrop);
+    color:var(--ink);
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;}
+  .app{
+    width:100%;
+    max-width:460px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--paper);
+  }
+  @media (min-width:520px){
+    .app{
+      min-height:calc(100vh - 48px);
+      margin:24px 0;
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px 10px;
+    background:var(--paper);
+  }
+  .back-btn{
+    appearance:none;
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    font-size:20px;
+    line-height:1;
+    padding:6px;
+    margin:-6px;
+    cursor:pointer;
+    border-radius:8px;
+    flex:0 0 auto;
+  }
+  .back-btn:focus-visible{outline:2px solid var(--brass);outline-offset:2px;}
+  .back-btn[hidden]{visibility:hidden;}
+  .progress-track{
+    flex:1 1 auto;
+    height:6px;
+    background:var(--line);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--brass-deep),var(--brass));
+    border-radius:999px;
+    transition:width .35s ease;
+  }
+  .step-count{
+    flex:0 0 auto;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+    min-width:44px;
+    text-align:right;
+  }
+
+  /* ---------- stage ---------- */
+  .stage{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:8px 26px 26px;
+  }
+  .screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    animation:rise .32s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .screen{animation:none;}
+  }
+
+  /* ---------- intro ---------- */
+  .intro{justify-content:center; text-align:left; gap:22px;}
+  .intro .mark{
+    width:52px; height:52px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:14px;
+    background:var(--navy);
+    margin-bottom:4px;
+  }
+  .intro h1{
+    font-size:28px;
+    line-height:1.5;
+    margin:0;
+    font-weight:700;
+    text-wrap:balance;
+  }
+  .intro p{
+    color:var(--ink-soft);
+    font-size:15px;
+    line-height:1.85;
+    margin:0;
+  }
+  .intro .meta{
+    display:flex;
+    gap:18px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .intro .meta strong{color:var(--ink); font-weight:700;}
+  .resume-note{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .resume-note button{
+    appearance:none;
+    border:none;
+    background:none;
+    color:var(--brass-deep);
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    padding:4px;
+    white-space:nowrap;
+  }
+
+  /* ---------- question ---------- */
+  .q-section{
+    font-size:12px;
+    letter-spacing:.08em;
+    color:var(--brass-deep);
+    font-weight:700;
+    margin:14px 0 10px;
+  }
+  .q-title{
+    font-size:22px;
+    line-height:1.55;
+    font-weight:700;
+    margin:0 0 6px;
+    text-wrap:balance;
+  }
+  .q-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+  }
+  .q-body{flex:1;}
+
+  .field{
+    width:100%;
+    font-size:17px;
+    font-family:inherit;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink);
+  }
+  .field:focus{outline:none; border-color:var(--brass);}
+  .field::placeholder{color:#a79c86;}
+  textarea.field{min-height:118px; resize:vertical; line-height:1.7;}
+  .field-row{display:flex; align-items:center; gap:10px;}
+  .field-unit{font-size:14px; color:var(--ink-soft); white-space:nowrap;}
+  .two-col{display:flex; gap:14px; margin-bottom:14px;}
+  .two-col .col{flex:1;}
+  .two-col label{display:block; font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+  .group-label{font-size:13px; font-weight:700; color:var(--ink); margin:18px 0 8px;}
+  .group-label:first-child{margin-top:0;}
+
+  .chip-list{display:flex; flex-direction:column; gap:10px;}
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink);
+    font-size:16px;
+    font-family:inherit;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .chip:hover{border-color:var(--brass);}
+  .chip .mark{
+    flex:0 0 auto;
+    width:20px; height:20px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chip.multi .mark{border-radius:6px;}
+  .chip.selected{border-color:var(--brass); background:rgba(169,126,63,0.09);}
+  .chip.selected .mark{border-color:var(--brass); background:var(--brass);}
+  .chip .mark svg{width:12px; height:12px; opacity:0; stroke:#fff; stroke-width:3;}
+  .chip.selected .mark svg{opacity:1;}
+  .other-input{margin-top:12px;}
+
+  /* ---------- footer / nav ---------- */
+  .nav{
+    display:flex;
+    justify-content:flex-end;
+    padding-top:20px;
+  }
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:12px;
+    padding:15px 30px;
+    font-size:16px;
+    font-weight:700;
+    font-family:inherit;
+    cursor:pointer;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  .btn-primary{background:var(--navy); color:#fdfbf6;}
+  .btn-primary:disabled{opacity:.35; cursor:not-allowed;}
+  .btn-primary:not(:disabled):active{transform:scale(.98);}
+  .btn-wide{width:100%;}
+  .btn-ghost{background:none; color:var(--ink-soft); font-weight:500; padding:15px 12px;}
+
+  /* ---------- review ---------- */
+  .review-head{margin:14px 0 20px;}
+  .review-head h2{font-size:24px; margin:0 0 6px;}
+  .review-head p{color:var(--ink-soft); font-size:14px; margin:0;}
+  .review-section{margin-bottom:22px;}
+  .review-section h3{
+    font-size:12px; letter-spacing:.06em; color:var(--brass-deep);
+    font-weight:700; margin:0 0 10px;
+    display:flex; justify-content:space-between; align-items:baseline;
+  }
+  .review-section h3 button{
+    appearance:none; border:none; background:none; color:var(--ink-soft);
+    font-size:12px; letter-spacing:0; font-weight:500; cursor:pointer; text-decoration:underline;
+  }
+  .review-row{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .review-row:last-child{border-bottom:none;}
+  .review-row .label{color:var(--ink-soft); flex:0 0 40%;}
+  .review-row .value{flex:1; text-align:right; word-break:break-word;}
+  .review-empty{font-size:13px; color:var(--ink-soft);}
+
+  .submit-error{
+    background:rgba(164,67,47,0.1);
+    border:1px solid var(--danger);
+    color:var(--danger);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    margin-top:14px;
+  }
+
+  /* ---------- done ---------- */
+  .done{justify-content:center; align-items:center; text-align:center; gap:16px;}
+  .done .check{
+    width:64px; height:64px; border-radius:50%;
+    background:var(--success);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .done .check svg{width:30px; height:30px; stroke:#fff; stroke-width:3; fill:none;}
+  .done h1{font-size:24px; margin:0;}
+  .done p{color:var(--ink-soft); font-size:14px; line-height:1.8; margin:0; max-width:30em;}
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ config ============ */
+  // GAS Web App (doPost) endpoint. Deployed from the company Google account.
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbw8m6szdTD3qqzBMWaJHynhjDeS9ch8_CZlJwQGDbc-LRqTBLsB2O62mnwjymrxNW0ZTg/exec";
+  var STORAGE_KEY = "hearingForm.v1";
+
+  /* ============ question data ============ */
+  var STEPS = [
+    {id:"name", section:"お客様情報", q:"お名前を教えてください", type:"text", required:true, placeholder:"例：山田 太郎"},
+    {id:"kana", section:"お客様情報", q:"フリガナ", type:"text", placeholder:"例：ヤマダ タロウ"},
+    {id:"phone", section:"お客様情報", q:"電話番号を教えてください", type:"tel", required:true, placeholder:"例：090-1234-5678"},
+    {id:"email", section:"お客様情報", q:"メールアドレス", type:"email", placeholder:"例：taro@example.com"},
+    {id:"contact_method", section:"お客様情報", q:"ご連絡はどの方法がよいですか？", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["電話","SMS","LINE","メール"]},
+    {id:"contact_time", section:"お客様情報", q:"ご連絡しやすい時間帯はありますか？", type:"text", placeholder:"例：平日18時以降、土日終日"},
+
+    {id:"reason", section:"お引越しについて", q:"お引越しの理由を教えてください", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["転勤","就職・転職","結婚","同棲","独立","今の家が手狭","家賃を下げたい","契約更新"]},
+    {id:"timing", section:"お引越しについて", q:"いつ頃入居したいですか？", type:"single",
+      options:["すぐにでも","1か月以内","2〜3か月以内","時期は未定"]},
+    {id:"current_home", section:"お引越しについて", q:"今のお住まいは？", type:"single",
+      options:["賃貸","持ち家","実家","社宅・寮"]},
+    {id:"current_rent", section:"お引越しについて", q:"今のお家賃はおいくらですか？", type:"number", unit:"円 / 月", placeholder:"65000"},
+    {id:"move_out_date", section:"お引越しについて", q:"退去予定日は決まっていますか？", type:"date"},
+
+    {id:"area1", section:"希望エリア", q:"住みたいエリアを教えてください", sub:"第一希望", type:"text", required:true, placeholder:"例：世田谷区"},
+    {id:"area2", section:"希望エリア", q:"次の候補はありますか？", sub:"第二希望（あれば）", type:"text", placeholder:"例：目黒区"},
+    {id:"area3", section:"希望エリア", q:"もう一つ候補はありますか？", sub:"第三希望（あれば）", type:"text"},
+    {id:"line_station", section:"希望エリア", q:"希望する沿線・駅はありますか？", type:"text", placeholder:"例：小田急線 経堂駅"},
+    {id:"walk_time", section:"希望エリア", q:"駅からの距離は？", type:"single",
+      options:["徒歩5分以内","徒歩10分以内","徒歩15分以内","徒歩20分以内","こだわらない"]},
+    {id:"area_pref", section:"希望エリア", q:"エリアで大事にしたいことは？", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["学区","職場までの時間","実家の近く","スーパーなど生活の便利さ","静かな住宅街"]},
+
+    {id:"rent_hope", section:"予算", q:"希望する家賃はいくらくらいですか？", type:"number", unit:"円 / 月 くらい", required:true, placeholder:"80000"},
+    {id:"rent_max", section:"予算", q:"家賃の上限はいくらまでですか？", type:"number", unit:"円 / 月 まで", placeholder:"90000"},
+    {id:"maintenance_fee", section:"予算", q:"管理費・共益費はどうしますか？", type:"single",
+      options:["さっきの金額に込みでOK","別途あってもOK"]},
+    {id:"deposit_key", section:"予算", q:"敷金・礼金について教えてください", type:"double-single",
+      groups:[
+        {key:"deposit", label:"敷金", options:["支払ってもOK","できれば無しがいい"]},
+        {key:"key_money", label:"礼金", options:["支払ってもOK","できれば無しがいい"]}
+      ]},
+    {id:"initial_cost", section:"予算", q:"初期費用はどれくらいまでOKですか？", type:"number", unit:"円くらい", placeholder:"300000"},
+
+    {id:"property_type", section:"希望物件", q:"物件のタイプは？", type:"single",
+      options:["マンション","アパート","戸建て","テラスハウス","特にこだわらない"]},
+    {id:"layout", section:"希望物件", q:"希望の間取りは？", type:"single", other:true,
+      options:["1R","1K","1DK","1LDK","2DK","2LDK","3LDK","4LDK以上"]},
+    {id:"area_size", section:"希望物件", q:"広さの希望はありますか？", type:"two-number",
+      fields:[{key:"area_min", label:"最低", unit:"㎡"},{key:"area_hope", label:"希望", unit:"㎡"}]},
+    {id:"building_age", section:"希望物件", q:"築年数は？", type:"single",
+      options:["新築","築5年以内","築10年以内","築20年以内","こだわらない"]},
+    {id:"floor", section:"希望物件", q:"階数の希望は？", type:"single",
+      options:["1階でもOK","2階以上がいい","最上階がいい","こだわらない"]},
+    {id:"facing", section:"希望物件", q:"部屋の向きの希望は？", type:"single",
+      options:["南向き","東向き","西向き","北向き","こだわらない"]},
+
+    {id:"building_facility", section:"設備・条件", q:"建物にあってほしい設備は？", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["オートロック","エレベーター","宅配ボックス","防犯カメラ","分譲賃貸","管理人あり"]},
+    {id:"room_facility", section:"設備・条件", q:"部屋にあってほしい設備は？", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["バス・トイレ別","独立洗面台","室内に洗濯機置き場","追い焚き機能","浴室乾燥機","温水洗浄便座","システムキッチン","コンロ2口以上","エアコン","ウォークインクローゼット","インターネット無料"]},
+
+    {id:"car", section:"駐車場・自転車・バイク", q:"お車はお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"car_detail", section:"駐車場・自転車・バイク", q:"台数と車種を教えてください", type:"text", placeholder:"例：1台・プリウス",
+      showIf:function(a){return a.car === "あり";}},
+    {id:"parking_budget", section:"駐車場・自転車・バイク", q:"駐車場代はいくらまでOKですか？", type:"number", unit:"円 / 月 まで", placeholder:"20000",
+      showIf:function(a){return a.car === "あり";}},
+    {id:"bicycle", section:"駐車場・自転車・バイク", q:"自転車はお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"bicycle_count", section:"駐車場・自転車・バイク", q:"台数を教えてください", type:"number", unit:"台",
+      showIf:function(a){return a.bicycle === "あり";}},
+    {id:"motorcycle", section:"駐車場・自転車・バイク", q:"バイクはお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"motorcycle_detail", section:"駐車場・自転車・バイク", q:"排気量を教えてください", type:"text", placeholder:"例：125cc",
+      showIf:function(a){return a.motorcycle === "あり";}},
+
+    {id:"residents", section:"入居者情報", q:"入居される人数を教えてください", type:"two-number",
+      fields:[{key:"adults", label:"大人", unit:"名"},{key:"children", label:"子供", unit:"名"}]},
+    {id:"who", section:"入居者情報", q:"入居されるのはどなたですか？", sub:"いくつでも選べます", type:"multi", other:true,
+      options:["ご本人","配偶者","お子様","ご両親"]},
+    {id:"pet", section:"入居者情報", q:"ペットは飼っていますか？", type:"single", options:["なし","あり"]},
+    {id:"pet_detail", section:"入居者情報", q:"種類と頭数を教えてください", type:"text", placeholder:"例：猫・2匹",
+      showIf:function(a){return a.pet === "あり";}},
+    {id:"instrument", section:"入居者情報", q:"楽器はお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"instrument_detail", section:"入居者情報", q:"種類を教えてください", type:"text", placeholder:"例：ピアノ",
+      showIf:function(a){return a.instrument === "あり";}},
+    {id:"smoking", section:"入居者情報", q:"喫煙されますか？", type:"single", options:["なし","あり"]},
+
+    {id:"must_have", section:"希望条件のまとめ", q:"これだけは譲れない条件は？", sub:"いくつでも自由に書いてください", type:"textarea"},
+    {id:"nice_to_have", section:"希望条件のまとめ", q:"できれば欲しい条件は？", type:"textarea"},
+    {id:"flexible", section:"希望条件のまとめ", q:"妥協できる条件は？", type:"textarea"}
+  ];
+
+  /* ============ state ============ */
+  var state = {
+    screen: "intro",   // intro | question | review | done | error
+    stepIndex: 0,
+    answers: {},
+    submitting: false,
+    submitError: null
+  };
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var saved = JSON.parse(raw);
+        if(saved && typeof saved === "object") return saved;
+      }
+    }catch(e){}
+    return null;
+  }
+  function persist(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        answers: state.answers,
+        stepIndex: state.stepIndex
+      }));
+    }catch(e){}
+  }
+  function clearSaved(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  }
+
+  function visibleSteps(){
+    return STEPS.filter(function(s){
+      return !s.showIf || s.showIf(state.answers);
+    });
+  }
+  function currentStep(){
+    return visibleSteps()[state.stepIndex];
+  }
+  function isAnswered(step){
+    var v = state.answers[step.id];
+    if(step.type === "multi") return Array.isArray(v && v.values) && v.values.length > 0;
+    if(step.type === "two-number") return v && (v[step.fields[0].key] || v[step.fields[1].key]);
+    if(step.type === "double-single") return v && step.groups.every(function(g){ return v[g.key]; });
+    return v !== undefined && v !== null && String(v).trim() !== "";
+  }
+  function canAdvance(step){
+    if(!step.required) return true;
+    return isAnswered(step);
+  }
+
+  /* ============ rendering ============ */
+  var root = document.getElementById("app");
+
+  function el(tag, attrs, children){
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === "class") e.className = attrs[k];
+      else if(k === "html") e.innerHTML = attrs[k];
+      else if(k.indexOf("on") === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    (children||[]).forEach(function(c){
+      if(c) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+
+  var CHECK_SVG = '<svg viewBox="0 0 16 16"><polyline points="2,9 6,13 14,3" fill="none"/></svg>';
+
+  function render(){
+    root.innerHTML = "";
+    if(state.screen === "intro") root.appendChild(renderIntro());
+    else if(state.screen === "question") root.appendChild(renderQuestionScreen());
+    else if(state.screen === "review") root.appendChild(renderReview());
+    else if(state.screen === "done") root.appendChild(renderDone());
+  }
+
+  function renderTopbar(progressPct, showBack, stepLabel){
+    var bar = el("div", {class:"topbar"}, [
+      el("button", {class:"back-btn", "aria-label":"戻る", onclick:goBack, hidden: showBack ? null : "hidden"}, ["←"]),
+      el("div", {class:"progress-track"}, [ el("div", {class:"progress-fill", style:"width:" + progressPct + "%"}) ]),
+      el("span", {class:"step-count"}, [stepLabel || ""])
+    ]);
+    return bar;
+  }
+
+  function renderIntro(){
+    var wrap = el("div", {});
+    wrap.appendChild(renderTopbar(0, false, ""));
+    var saved = load();
+    var hasSaved = saved && saved.answers && Object.keys(saved.answers).length > 0;
+
+    var screen = el("div", {class:"screen intro"});
+    screen.appendChild(el("div", {class:"mark"}, [(function(){
+      var s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      s.setAttribute("viewBox","0 0 24 24");
+      s.setAttribute("width","26"); s.setAttribute("height","26");
+      s.innerHTML = '<path d="M14.7 6.3a4 4 0 1 0 -5.66 5.66L4 17V20H7L12.04 14.96A4 4 0 0 0 14.7 6.3Z" fill="none" stroke="#fdfbf6" stroke-width="1.6" stroke-linejoin="round"/>';
+      return s;
+    })()]));
+    screen.appendChild(el("h1", {class:"serif"}, ["住まいのご希望を", el("br"), "お聞かせください"]));
+    screen.appendChild(el("p", {}, [
+      "選ぶだけ・入力するだけの簡単な質問です。ここで教えていただいた内容をもとに、担当者がぴったりのお部屋を探します。"
+    ]));
+    screen.appendChild(el("div", {class:"meta"}, [
+      el("span", {}, [el("strong",{},["約3分"]), " で完了"]),
+      el("span", {}, [el("strong",{},["途中保存"]), " されます"])
+    ]));
+
+    if(hasSaved){
+      screen.appendChild(el("div", {class:"resume-note"}, [
+        el("span", {}, ["前回の続きがあります"]),
+        el("button", {onclick:function(){
+          clearSaved();
+          state.answers = {};
+          state.stepIndex = 0;
+          render();
+        }}, ["はじめから"])
+      ]));
+    }
+
+    var nav = el("div", {class:"nav"});
+    nav.appendChild(el("button", {class:"btn btn-primary btn-wide", onclick:function(){
+      if(hasSaved){
+        state.answers = saved.answers || {};
+        state.stepIndex = saved.stepIndex || 0;
+      }
+      state.screen = "question";
+      render();
+    }}, [hasSaved ? "続きから答える" : "はじめる"]));
+    screen.appendChild(el("div", {style:"flex:1"}));
+    screen.appendChild(nav);
+    wrap.appendChild(screen);
+    return wrap;
+  }
+
+  function optionSelected(step, opt){
+    var v = state.answers[step.id];
+    if(step.type === "multi") return v && v.values && v.values.indexOf(opt) > -1;
+    return v && v.value === opt;
+  }
+
+  function setSingle(step, opt){
+    state.answers[step.id] = {value: opt, other: state.answers[step.id] ? state.answers[step.id].other : ""};
+    persist();
+    render();
+    if(step.other && opt === "その他"){ return; }
+    // auto-advance
+    setTimeout(function(){ goNext(); }, 220);
+  }
+  function toggleMulti(step, opt){
+    var cur = state.answers[step.id] || {values:[], other:""};
+    var idx = cur.values.indexOf(opt);
+    if(idx > -1) cur.values.splice(idx,1); else cur.values.push(opt);
+    state.answers[step.id] = cur;
+    persist();
+    render();
+  }
+
+  function renderChipList(step){
+    var wrap = el("div", {class:"chip-list"});
+    var opts = step.options.slice();
+    if(step.other) opts.push("その他");
+    opts.forEach(function(opt){
+      var selected = optionSelected(step, opt);
+      var chip = el("button", {
+        class:"chip" + (step.type==="multi" ? " multi" : "") + (selected ? " selected" : ""),
+        type:"button",
+        onclick: step.type === "multi" ? function(){ toggleMulti(step, opt); } : function(){ setSingle(step, opt); }
+      }, [
+        el("span", {class:"mark", html: CHECK_SVG}),
+        el("span", {}, [opt])
+      ]);
+      wrap.appendChild(chip);
+    });
+    if(step.other){
+      var v = state.answers[step.id];
+      var showOther = step.type === "multi" ? (v && v.values && v.values.indexOf("その他") > -1) : (v && v.value === "その他");
+      if(showOther){
+        var input = el("input", {
+          class:"field other-input", type:"text", placeholder:"その他の内容を教えてください",
+          value: (v && v.other) || "",
+          oninput:function(e){
+            var cur = state.answers[step.id] || (step.type==="multi" ? {values:[],other:""} : {value:"",other:""});
+            cur.other = e.target.value;
+            state.answers[step.id] = cur;
+            persist();
+          }
+        });
+        wrap.appendChild(input);
+      }
+    }
+    return wrap;
+  }
+
+  function renderDoubleSingle(step){
+    var wrap = el("div", {});
+    var v = state.answers[step.id] || {};
+    step.groups.forEach(function(g){
+      wrap.appendChild(el("div", {class:"group-label"}, [g.label]));
+      var list = el("div", {class:"chip-list"});
+      g.options.forEach(function(opt){
+        var selected = v[g.key] === opt;
+        list.appendChild(el("button", {
+          class:"chip" + (selected ? " selected" : ""),
+          type:"button",
+          onclick:function(){
+            var cur = state.answers[step.id] || {};
+            cur[g.key] = opt;
+            state.answers[step.id] = cur;
+            persist();
+            render();
+          }
+        }, [ el("span",{class:"mark", html:CHECK_SVG}), el("span",{},[opt]) ]));
+      });
+      wrap.appendChild(list);
+    });
+    return wrap;
+  }
+
+  function renderTwoNumber(step){
+    var wrap = el("div", {class:"two-col"});
+    var v = state.answers[step.id] || {};
+    step.fields.forEach(function(f){
+      var col = el("div", {class:"col"});
+      col.appendChild(el("label", {}, [f.label + (f.unit ? "（" + f.unit + "）" : "")]));
+      col.appendChild(el("input", {
+        class:"field", type:"number", inputmode:"decimal", placeholder:"未定",
+        value: v[f.key] || "",
+        oninput:function(e){
+          var cur = state.answers[step.id] || {};
+          cur[f.key] = e.target.value;
+          state.answers[step.id] = cur;
+          persist();
+          renderNavOnly();
+        }
+      }));
+      wrap.appendChild(col);
+    });
+    return wrap;
+  }
+
+  function renderTextLike(step){
+    var v = state.answers[step.id];
+    var isTextarea = step.type === "textarea";
+    var tag = isTextarea ? "textarea" : "input";
+    var attrs = {
+      class:"field",
+      placeholder: step.placeholder || "",
+      oninput:function(e){
+        state.answers[step.id] = e.target.value;
+        persist();
+        renderNavOnly();
+      }
+    };
+    if(!isTextarea){
+      attrs.type = step.type;
+      if(step.type === "number") attrs.inputmode = "decimal";
+      if(step.type === "tel") attrs.inputmode = "tel";
+    }
+    var field = el(tag, attrs, []);
+    field.value = v || "";
+    if(step.unit){
+      return el("div", {class:"field-row"}, [field, el("span",{class:"field-unit"},[step.unit])]);
+    }
+    return field;
+  }
+
+  function renderQuestionBody(step){
+    if(step.type === "single" || step.type === "multi") return renderChipList(step);
+    if(step.type === "double-single") return renderDoubleSingle(step);
+    if(step.type === "two-number") return renderTwoNumber(step);
+    return renderTextLike(step);
+  }
+
+  var navBtnRef = null;
+  function renderNavOnly(){
+    if(!navBtnRef) return;
+    var step = currentStep();
+    navBtnRef.disabled = !canAdvance(step);
+  }
+
+  function renderQuestionScreen(){
+    var steps = visibleSteps();
+    var step = steps[state.stepIndex];
+    if(!step){ state.screen = "review"; return renderReview(); }
+
+    var pct = Math.round(((state.stepIndex) / steps.length) * 100);
+    var wrap = el("div", {});
+    wrap.appendChild(renderTopbar(pct, true, (state.stepIndex+1) + " / " + steps.length));
+
+    var screen = el("div", {class:"screen"});
+    screen.appendChild(el("div", {class:"q-section"}, [step.section]));
+    screen.appendChild(el("h2", {class:"q-title serif"}, [step.q]));
+    if(step.sub) screen.appendChild(el("p", {class:"q-sub"}, [step.sub]));
+    else if(!step.required && step.type !== "single" && step.type !== "multi" && step.type !== "double-single")
+      screen.appendChild(el("p", {class:"q-sub"}, ["分からなければ空欄のままで大丈夫です"]));
+
+    var body = el("div", {class:"q-body"}, [renderQuestionBody(step)]);
+    screen.appendChild(body);
+
+    var showButton = !(step.type === "single" && !step.other) && !(step.type==="single" && step.other && !(state.answers[step.id] && state.answers[step.id].value === "その他"));
+    // For plain single-choice (no "other"), advancing happens automatically on tap, so hide the button.
+    // But always show button as a fallback way to proceed (helps users who already chose and want to continue).
+    var nav = el("div", {class:"nav"});
+    var btn = el("button", {class:"btn btn-primary btn-wide", onclick:goNext}, [state.stepIndex === steps.length-1 ? "確認する" : "次へ"]);
+    btn.disabled = !canAdvance(step);
+    navBtnRef = btn;
+    nav.appendChild(btn);
+    screen.appendChild(nav);
+
+    wrap.appendChild(screen);
+    return wrap;
+  }
+
+  function goNext(){
+    var steps = visibleSteps();
+    var step = steps[state.stepIndex];
+    if(!canAdvance(step)) return;
+    if(state.stepIndex >= steps.length - 1){
+      state.screen = "review";
+    }else{
+      state.stepIndex++;
+    }
+    persist();
+    render();
+  }
+  function goBack(){
+    if(state.screen === "review"){
+      state.screen = "question";
+      state.stepIndex = visibleSteps().length - 1;
+      render();
+      return;
+    }
+    if(state.stepIndex === 0){
+      state.screen = "intro";
+    }else{
+      state.stepIndex--;
+    }
+    render();
+  }
+
+  /* ============ review ============ */
+  function formatAnswer(step){
+    var v = state.answers[step.id];
+    if(v === undefined || v === null) return null;
+    if(step.type === "multi"){
+      if(!v.values || !v.values.length) return null;
+      var parts = v.values.map(function(o){
+        if(o === "その他" && v.other) return "その他（" + v.other + "）";
+        return o;
+      });
+      return parts.join("、");
+    }
+    if(step.type === "single"){
+      if(!v.value) return null;
+      if(v.value === "その他" && v.other) return "その他（" + v.other + "）";
+      return v.value;
+    }
+    if(step.type === "double-single"){
+      var out = step.groups.map(function(g){ return v[g.key] ? (g.label + "：" + v[g.key]) : null; }).filter(Boolean);
+      return out.length ? out.join(" / ") : null;
+    }
+    if(step.type === "two-number"){
+      var out2 = step.fields.map(function(f){ return v[f.key] ? (f.label + " " + v[f.key] + (f.unit||"")) : null; }).filter(Boolean);
+      return out2.length ? out2.join(" / ") : null;
+    }
+    var s = String(v).trim();
+    if(!s) return null;
+    if(step.type === "number" && step.unit) return s + " " + step.unit;
+    return s;
+  }
+
+  function renderReview(){
+    var wrap = el("div", {});
+    wrap.appendChild(renderTopbar(100, true, ""));
+    var screen = el("div", {class:"screen"});
+    screen.appendChild(el("div", {class:"review-head"}, [
+      el("h2", {class:"serif"}, ["ご入力内容の確認"]),
+      el("p", {}, ["内容を確認して送信してください。修正したい項目は「編集」から戻れます。"])
+    ]));
+
+    var bySection = {};
+    var order = [];
+    var steps = visibleSteps();
+    steps.forEach(function(step, i){
+      var val = formatAnswer(step);
+      if(!bySection[step.section]){ bySection[step.section] = []; order.push(step.section); }
+      bySection[step.section].push({step:step, val:val, index:i});
+    });
+
+    order.forEach(function(section){
+      var rows = bySection[section].filter(function(r){ return r.val; });
+      if(!rows.length) return;
+      var box = el("div", {class:"review-section"});
+      box.appendChild(el("h3", {}, [section]));
+      rows.forEach(function(r){
+        box.appendChild(el("div", {class:"review-row"}, [
+          el("span", {class:"label"}, [r.step.q]),
+          el("span", {class:"value"}, [r.val])
+        ]));
+      });
+      box.querySelector("h3").appendChild(el("button", {onclick:(function(idx){
+        return function(){
+          state.screen = "question";
+          state.stepIndex = idx;
+          render();
+        };
+      })(rows[0].index)}, ["編集"]));
+      screen.appendChild(box);
+    });
+
+    if(state.submitError){
+      screen.appendChild(el("div", {class:"submit-error"}, [state.submitError]));
+    }
+
+    var nav = el("div", {class:"nav"});
+    var btn = el("button", {class:"btn btn-primary btn-wide", onclick:submit}, [state.submitting ? "送信中…" : "この内容で送信する"]);
+    btn.disabled = state.submitting;
+    nav.appendChild(btn);
+    screen.appendChild(nav);
+
+    wrap.appendChild(screen);
+    return wrap;
+  }
+
+  function buildPayload(){
+    var payload = {submitted_at: new Date().toISOString()};
+    STEPS.forEach(function(step){
+      var val = formatAnswer(step);
+      if(step.type === "two-number"){
+        var v = state.answers[step.id] || {};
+        step.fields.forEach(function(f){ payload[f.key] = v[f.key] || ""; });
+      }else if(step.type === "double-single"){
+        var v2 = state.answers[step.id] || {};
+        step.groups.forEach(function(g){ payload[g.key] = v2[g.key] || ""; });
+      }else{
+        payload[step.id] = val || "";
+      }
+    });
+    return payload;
+  }
+
+  function submit(){
+    if(state.submitting) return;
+    state.submitting = true;
+    state.submitError = null;
+    render();
+
+    var payload = buildPayload();
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if(!res.ok) throw new Error("network");
+      return res.json().catch(function(){ return {ok:true}; });
+    }).then(function(){
+      clearSaved();
+      state.submitting = false;
+      state.screen = "done";
+      render();
+    }).catch(function(){
+      state.submitting = false;
+      state.submitError = "送信できませんでした。電波の良いところでもう一度お試しください。";
+      render();
+    });
+  }
+
+  function renderDone(){
+    var wrap = el("div", {});
+    var screen = el("div", {class:"screen done"});
+    screen.appendChild(el("div", {class:"check"}, [(function(){
+      var s = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      s.setAttribute("viewBox","0 0 24 24");
+      s.innerHTML = '<polyline points="4,13 10,19 20,6"/>';
+      return s;
+    })()]));
+    screen.appendChild(el("h1", {class:"serif"}, ["送信しました"]));
+    screen.appendChild(el("p", {}, ["ご回答ありがとうございました。内容を確認のうえ、担当者よりご連絡いたします。"]));
+    wrap.appendChild(screen);
+    return wrap;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
