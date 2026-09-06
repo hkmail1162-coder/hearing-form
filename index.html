@@ -436,15 +436,15 @@
     {id:"room_facility", section:"設備・条件", q:"部屋にあってほしい設備は？", sub:"複数選択可です", type:"multi", other:true,
       options:["バス・トイレ別","独立洗面台","室内に洗濯機置き場","追い焚き機能","浴室乾燥機","温水洗浄便座","システムキッチン","コンロ2口以上","充実した収納","ウォークインクローゼット","インターネット無料"]},
 
-    {id:"car", section:"駐車場・自転車・バイク", q:"お車はお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"car", section:"駐車場・自転車・バイク", q:"お車はお持ちですか？", type:"single", options:["なし","あり","予定あり"]},
     {id:"car_detail", section:"駐車場・自転車・バイク", q:"台数と車種を教えてください", type:"text", placeholder:"例：1台・プリウス",
       showIf:function(a){return a.car && a.car.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
     {id:"parking_budget", section:"駐車場・自転車・バイク", q:"駐車場代はいくらまでOKですか？", type:"number", unit:"円 / 月 まで", placeholder:"20000",
       showIf:function(a){return a.car && a.car.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
-    {id:"bicycle", section:"駐車場・自転車・バイク", q:"自転車はお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"bicycle", section:"駐車場・自転車・バイク", q:"自転車はお持ちですか？", type:"single", options:["なし","あり","予定あり"]},
     {id:"bicycle_count", section:"駐車場・自転車・バイク", q:"台数を教えてください", type:"number", unit:"台",
       showIf:function(a){return a.bicycle && a.bicycle.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
-    {id:"motorcycle", section:"駐車場・自転車・バイク", q:"バイクはお持ちですか？", type:"single", options:["なし","あり"]},
+    {id:"motorcycle", section:"駐車場・自転車・バイク", q:"バイクはお持ちですか？", type:"single", options:["なし","あり","予定あり"]},
     {id:"motorcycle_detail", section:"駐車場・自転車・バイク", q:"排気量を教えてください", type:"text", placeholder:"例：125cc",
       showIf:function(a){return a.motorcycle && a.motorcycle.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
 
