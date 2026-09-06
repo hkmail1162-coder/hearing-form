@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ヒアリング回答一覧</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f3ec;
+    --paper-raised:#ffffff;
+    --ink:#242018;
+    --ink-soft:#6b6355;
+    --line:#e2dbc9;
+    --brass:#a97e3f;
+    --brass-deep:#8a6530;
+    --navy:#2b3550;
+    --success:#3f7a5e;
+    --danger:#a4432f;
+    --backdrop:#e8e1cd;
+    --shadow: 0 18px 40px -24px rgba(43,30,10,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--backdrop);
+    color:var(--ink);
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+    min-height:100vh;
+  }
+  .serif{font-family:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;}
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    min-height:100vh;
+    background:var(--paper);
+    padding:20px 24px 60px;
+  }
+
+  /* ---------- gate ---------- */
+  .gate{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    text-align:center;
+    padding:24px;
+  }
+  .gate h1{font-size:20px; margin:0;}
+  .gate p{color:var(--ink-soft); font-size:13px; margin:0;}
+  .gate-form{display:flex; gap:8px; margin-top:8px;}
+  .gate input{
+    font-size:16px;
+    font-family:inherit;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink);
+    width:200px;
+  }
+  .gate-error{color:var(--danger); font-size:13px; min-height:18px;}
+
+  /* ---------- header ---------- */
+  .topbar{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .topbar h1{font-size:20px; margin:0;}
+  .topbar .count{font-size:12px; color:var(--ink-soft);}
+  .btn{
+    appearance:none;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink-soft);
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 14px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .btn:hover{border-color:var(--brass); color:var(--brass-deep);}
+
+  /* ---------- list ---------- */
+  .list{display:flex; flex-direction:column; gap:10px;}
+  .card{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:14px 16px;
+    border-radius:14px;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+  }
+  .card:hover{border-color:var(--brass);}
+  .card .row1{display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
+  .card .name{font-size:16px; font-weight:700;}
+  .card .date{font-size:11px; color:var(--ink-soft); white-space:nowrap; font-variant-numeric:tabular-nums;}
+  .card .sub{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+  .card .meta{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; font-size:12px; color:var(--ink-soft);}
+  .card .meta b{color:var(--ink); font-weight:700;}
+  .empty, .loading, .error{color:var(--ink-soft); font-size:13px; padding:30px 4px; text-align:center;}
+  .error{color:var(--danger);}
+
+  /* ---------- detail ---------- */
+  .detail-head{display:flex; align-items:center; gap:12px; margin-bottom:18px;}
+  .back-btn{
+    appearance:none;
+    border:1.5px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink-soft);
+    font-family:inherit;
+    font-size:13px;
+    font-weight:700;
+    padding:7px 12px 7px 9px;
+    border-radius:999px;
+    cursor:pointer;
+  }
+  .back-btn:hover{border-color:var(--brass); color:var(--brass-deep);}
+  .detail-head h2{font-size:19px; margin:0; flex:1;}
+  .detail-head .date{font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+
+  .section{margin-bottom:22px;}
+  .section h3{
+    font-size:12px; letter-spacing:.06em; color:var(--brass-deep);
+    font-weight:700; margin:0 0 10px;
+  }
+  .qrow{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .qrow:last-child{border-bottom:none;}
+  .qrow .label{color:var(--ink-soft); flex:0 0 42%;}
+  .qrow .value{flex:1; text-align:right; word-break:break-word;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbw8m6szdTD3qqzBMWaJHynhjDeS9ch8_CZlJwQGDbc-LRqTBLsB2O62mnwjymrxNW0ZTg/exec";
+  var PASSPHRASE = "hearing2026";
+  var AUTH_KEY = "hearingAdmin.auth";
+
+  var SECTIONS = [
+    {name:"お客様情報", keys:["氏名","フリガナ","電話番号","メール","連絡方法","連絡可能時間帯"]},
+    {name:"お引越しについて", keys:["引越し理由","入居希望時期","現在の住まい","現在の家賃","退去予定日"]},
+    {name:"希望エリア", keys:["第一希望エリア","第二希望エリア","第三希望エリア","希望沿線駅","駅徒歩","エリアのこだわり"]},
+    {name:"予算", keys:["希望賃料","賃料上限","敷金","礼金","初期費用目安"]},
+    {name:"希望物件", keys:["物件種別","希望間取り","面積最低","面積希望","築年数","階数希望","向き"]},
+    {name:"設備・条件", keys:["建物設備","室内設備"]},
+    {name:"駐車場・自転車・バイク", keys:["自動車","自動車詳細","駐車場予算","自転車","自転車台数","バイク","排気量"]},
+    {name:"入居者情報", keys:["大人人数","子供人数","入居者","ペット","ペット詳細","楽器","楽器詳細","喫煙"]},
+    {name:"希望条件のまとめ", keys:["絶対に外せない条件","できれば欲しい条件","妥協できる条件"]}
+  ];
+
+  var state = {screen:"gate", rows:null, error:null, selected:null};
+  var root = document.getElementById("app");
+
+  function el(tag, attrs, children){
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function(k){
+      if(k === "class") e.className = attrs[k];
+      else if(k.indexOf("on") === 0 && typeof attrs[k] === "function") e.addEventListener(k.slice(2), attrs[k]);
+      else if(k !== "hidden" || attrs[k]) e.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function(c){
+      if(c === null || c === undefined) return;
+      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return e;
+  }
+
+  function fmtDate(s){
+    if(!s) return "";
+    var d = new Date(s);
+    if(isNaN(d.getTime())) return s;
+    var p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "/" + p(d.getMonth()+1) + "/" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+  }
+
+  function render(){
+    root.innerHTML = "";
+    if(state.screen === "gate") root.appendChild(renderGate());
+    else if(state.screen === "list") root.appendChild(renderList());
+    else if(state.screen === "detail") root.appendChild(renderDetail());
+  }
+
+  function renderGate(){
+    var wrap = el("div", {class:"gate"});
+    wrap.appendChild(el("h1", {class:"serif"}, ["お部屋探しヒアリング回答一覧"]));
+    wrap.appendChild(el("p", {}, ["合言葉を入力してください"]));
+    var input = el("input", {type:"password", placeholder:"合言葉"});
+    var errorEl = el("div", {class:"gate-error"}, [state.gateError || ""]);
+    var form = el("div", {class:"gate-form"});
+    var btn = el("button", {class:"btn", onclick:function(){
+      if(input.value === PASSPHRASE){
+        try{ localStorage.setItem(AUTH_KEY, "ok"); }catch(e){}
+        state.screen = "list";
+        loadData();
+      }else{
+        state.gateError = "合言葉が違います";
+        render();
+      }
+    }}, ["開く"]);
+    input.addEventListener("keydown", function(e){ if(e.key === "Enter") btn.click(); });
+    form.appendChild(input);
+    form.appendChild(btn);
+    wrap.appendChild(form);
+    wrap.appendChild(errorEl);
+    setTimeout(function(){ input.focus(); }, 50);
+    return wrap;
+  }
+
+  function renderList(){
+    var wrap = el("div", {class:"wrap"});
+    var top = el("div", {class:"topbar"}, [
+      el("h1", {class:"serif"}, ["ヒアリング回答一覧"]),
+      el("button", {class:"btn", onclick:loadData}, ["更新"])
+    ]);
+    wrap.appendChild(top);
+
+    if(state.loading){
+      wrap.appendChild(el("div", {class:"loading"}, ["読み込み中…"]));
+      return wrap;
+    }
+    if(state.error){
+      wrap.appendChild(el("div", {class:"error"}, ["読み込みに失敗しました: " + state.error]));
+      return wrap;
+    }
+    var rows = state.rows || [];
+    if(!rows.length){
+      wrap.appendChild(el("div", {class:"empty"}, ["まだ回答がありません"]));
+      return wrap;
+    }
+    wrap.appendChild(el("div", {class:"count"}, [rows.length + "件"]));
+    var list = el("div", {class:"list"});
+    rows.forEach(function(row){
+      var name = (row["氏名"] || "").trim() || "（お名前未記入）";
+      var kana = row["フリガナ"] || "";
+      var area = row["第一希望エリア"] || "";
+      var rent = row["希望賃料"] || "";
+      var card = el("button", {class:"card", onclick:function(){ state.selected = row; state.screen = "detail"; render(); }}, [
+        el("div", {class:"row1"}, [
+          el("span", {class:"name"}, [name]),
+          el("span", {class:"date"}, [fmtDate(row["タイムスタンプ"])])
+        ]),
+        kana ? el("div", {class:"sub"}, [kana]) : null,
+        el("div", {class:"meta"}, [
+          area ? el("span", {}, [el("b",{},["希望エリア："]), area]) : null,
+          rent ? el("span", {}, [el("b",{},["希望賃料："]), rent]) : null
+        ])
+      ]);
+      list.appendChild(card);
+    });
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  function renderDetail(){
+    var wrap = el("div", {class:"wrap"});
+    var row = state.selected;
+    wrap.appendChild(el("div", {class:"detail-head"}, [
+      el("button", {class:"back-btn", onclick:function(){ state.screen = "list"; render(); }}, ["← 一覧へ"]),
+      el("h2", {class:"serif"}, [(row["氏名"] || "（お名前未記入）")]),
+      el("span", {class:"date"}, [fmtDate(row["タイムスタンプ"])])
+    ]));
+    SECTIONS.forEach(function(sec){
+      var rowsToShow = sec.keys.filter(function(k){ return (row[k] || "").toString().trim(); });
+      if(!rowsToShow.length) return;
+      var box = el("div", {class:"section"});
+      box.appendChild(el("h3", {}, [sec.name]));
+      rowsToShow.forEach(function(k){
+        box.appendChild(el("div", {class:"qrow"}, [
+          el("span", {class:"label"}, [k]),
+          el("span", {class:"value"}, [row[k]])
+        ]));
+      });
+      wrap.appendChild(box);
+    });
+    return wrap;
+  }
+
+  function loadData(){
+    state.screen = "list";
+    state.loading = true;
+    state.error = null;
+    render();
+    fetch(ENDPOINT).then(function(r){ return r.json(); }).then(function(data){
+      state.loading = false;
+      if(!data.ok){ state.error = data.error || "unknown"; render(); return; }
+      var rows = (data.rows || []).filter(function(r){ return (r["氏名"] || r["タイムスタンプ"] || "").toString().trim(); });
+      rows.reverse();
+      state.rows = rows;
+      render();
+    }).catch(function(err){
+      state.loading = false;
+      state.error = String(err);
+      render();
+    });
+  }
+
+  var authed = false;
+  try{ authed = localStorage.getItem(AUTH_KEY) === "ok"; }catch(e){}
+  if(authed){
+    state.screen = "list";
+    loadData();
+  }else{
+    render();
+  }
+})();
+</script>
+</body>
+</html>
