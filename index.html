@@ -439,8 +439,6 @@
     {id:"car", section:"駐車場・自転車・バイク", q:"お車はお持ちですか？", type:"single", options:["なし","あり","予定あり"]},
     {id:"car_detail", section:"駐車場・自転車・バイク", q:"車種を教えてください", type:"text", placeholder:"例：プリウス",
       showIf:function(a){return a.car && a.car.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
-    {id:"parking_budget", section:"駐車場・自転車・バイク", q:"駐車場代はいくらまでOKですか？", type:"number", unit:"円 / 月 まで", placeholder:"20000",
-      showIf:function(a){return a.car && a.car.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
     {id:"bicycle", section:"駐車場・自転車・バイク", q:"自転車はお持ちですか？", type:"single", options:["なし","あり","予定あり"]},
     {id:"bicycle_count", section:"駐車場・自転車・バイク", q:"台数を教えてください", type:"number", unit:"台",
       showIf:function(a){return a.bicycle && a.bicycle.value === "あり";}, quickFill:[{label:"わからない", value:"わからない"}]},
