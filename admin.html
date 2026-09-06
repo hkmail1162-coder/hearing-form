@@ -179,8 +179,8 @@
       else if(k !== "hidden" || attrs[k]) e.setAttribute(k, attrs[k]);
     });
     (children || []).forEach(function(c){
-      if(c === null || c === undefined) return;
-      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+      if(c === null || c === undefined || c === "") return;
+      e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
     });
     return e;
   }
@@ -280,7 +280,7 @@
       el("span", {class:"date"}, [fmtDate(row["タイムスタンプ"])])
     ]));
     SECTIONS.forEach(function(sec){
-      var rowsToShow = sec.keys.filter(function(k){ return (row[k] || "").toString().trim(); });
+      var rowsToShow = sec.keys.filter(function(k){ return row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== ""; });
       if(!rowsToShow.length) return;
       var box = el("div", {class:"section"});
       box.appendChild(el("h3", {}, [sec.name]));
